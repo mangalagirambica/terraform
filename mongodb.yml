@@ -1,0 +1,27 @@
+- name: Copy mongodb.repo to /etc/yum.repos.d/mongo.repo
+  ansible.builtin.copy:
+    src: mongodb.repo
+    dest: /etc/yum.repos.d/mongo.repo
+
+- name: Install mongodb-org package
+  ansible.builtin.dnf:
+    name: mongodb-org
+    state: present
+
+- name: Enable mongodb service
+  ansible.builtin.systemd:
+    name: mongodb
+    enabled: yes
+    state: started
+
+- name: Update listen address from 127.0.0.1 to 0.0.0.0 in /etc/mongod.conf
+  ansible.builtin.lineinfile:
+    path: /etc/mongod.conf
+    regexp: '^  bindIp: 127.0.0.1'
+    line: '  bindIp: 0.0.0.0'
+    backup: yes  # Optional: create a backup of the file before modifying
+
+- name: Restart mongod service
+  ansible.builtin.systemd:
+    name: mongod
+    state: restarted
