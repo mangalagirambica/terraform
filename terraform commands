@@ -1,0 +1,206 @@
+❯ cat main.tf
+resource "local_file" "key_data" {
+  filename        = "/tmp/.pki/private_key.pem"
+  content         = tls_private_key.private_key.private_key_pem
+  file_permission = "0400"
+}
+resource "tls_private_key" "private_key" {
+  algorithm   = "RSA"
+  rsa_bits    = "2048"
+  ecdsa_curve = "P384"
+}
+resource "tls_cert_request" "csr" {
+  private_key_pem = file("/tmp/.pki/private_key.pem")
+  depends_on      = [local_file.key_data]
+
+  subject {
+    common_name  = "flexit.com"
+    organization = "FlexIT Consulting Services"
+  }
+}
+
+❯ cat data.tf
+
+resource "local_file" "data" {
+          filename = "/opt/codes"
+          content = "You've to write this code."
+}
+
+root in ~/terraform-projects/project-a via 💠 default on ☁️  (us-east-1)
+❯ cat terraform.tfstate
+{
+  "version": 4,
+  "terraform_version": "1.5.0",
+  "serial": 1,
+  "lineage": "0ce8bc83-be2e-67e1-ed40-60d4db391ada",
+  "outputs": {},
+  "resources": [
+    {
+      "mode": "managed",
+      "type": "local_file",
+      "name": "data",
+      "provider": "provider[\"registry.terraform.io/hashicorp/local\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "content": "You've to write this code.",
+            "content_base64": null,
+            "content_base64sha256": "FZy1Bn26UEIGgBj6E/3aMFPPo0z8wmDp4ljqh+WYuWQ=",
+            "content_base64sha512": "4pC7k3YFVhg+Cu2fo0I5b1/h1JH9HpbFLHG2MFuCEHh5UYsZyWciDm0KkkwBqvlrYxzbYuCq2fuSvH4hV31i5Q==",
+            "content_md5": "55403026bfc0ce8205d712ed68891251",
+            "content_sha1": "fc307f99d6490d988433ce246d60eb4ca005a87c",
+            "content_sha256": "159cb5067dba5042068018fa13fdda3053cfa34cfcc260e9e258ea87e598b964",
+            "content_sha512": "e290bb93760556183e0aed9fa342396f5fe1d491fd1e96c52c71b6305b82107879518b19c967220e6d0a924c01aaf96b631cdb62e0aad9fb92bc7e21577d62e5",
+            "directory_permission": "0777",
+            "file_permission": "0777",
+            "filename": "/root/codes",
+            "id": "fc307f99d6490d988433ce246d60eb4ca005a87c",
+            "sensitive_content": null,
+            "source": null
+          },
+          "sensitive_attributes": []
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}
+
+root in ~/terraform-projects/project-a via 💠 default on ☁️  (us-east-1)
+❯
+
+❯ cat project.tf
+
+resource "local_file" "cloud" {
+           filename = "/tmp/plugins"
+           content = "multiple cloud providers."
+
+}
+
+resource "aws_ebs_volume" "myvolume" {
+  availability_zone = "us-east-2"
+  size              = 20
+}
+root in ~/terraform-projects/provider via 💠 default on ☁️  (us-east-1)
+❯ cat provider.tf
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "4.15.0"
+    }
+  }
+}
+
+
+provider "aws" {
+  region                      = lookup(var.region, terraform.workspace)
+  skip_credentials_validation = true
+  skip_requesting_account_id  = true
+  s3_use_path_style = true
+  endpoints {
+    ec2 = "http://aws:4566"
+    dynamodb = "http://aws:4566"
+    s3 = "http://aws:4566"
+  }
+}
+
+root in ~/terraform-projects/provider via 💠 default on ☁️  (us-east-1)
+❯
+
+root in ~/terraform-projects/project-mysterio via 💠 default on ☁️  (us-east-1)
+❯ ls
+main.tf  variables.tf
+
+root in ~/terraform-projects/project-mysterio via 💠 default on ☁️  (us-east-1)
+❯ cat main.tf
+resource "local_file" "file" {
+    filename = var.filename
+    file_permission =  var.permission
+    content = random_string.string.id
+
+}
+
+resource "random_string" "string" {
+    length = var.length
+    keepers = {
+        length = var.length
+    }
+
+}
+
+
+
+root in ~/terraform-projects/project-mysterio via 💠 default on ☁️  (us-east-1)
+❯ cat variables.tf
+variable "length" {
+    default = 10
+
+}
+variable "filename" {
+    default = "/root/random_text"
+}
+variable "content" {
+    default = "This file contains a single line of data"
+}
+variable "permission" {
+    default = 0700
+}
+
+root in ~/terraform-projects/project-mysterio via 💠 default on ☁️  (us-east-1)
+root in ~/terraform-projects/project-mysterio via 💠 default on ☁️  (us-east-1)
+❯ cat main.tf
+resource "local_file" "file" {
+    filename = var.filename
+    file_permission =  var.permission
+    content = random_string.string.id
+
+}
+
+resource "random_string" "string" {
+    length = var.length
+    keepers = {
+        length = var.length
+    }
+
+}
+
+
+
+root in ~/terraform-projects/project-mysterio via 💠 default on ☁️  (us-east-1)
+❯ cat variables.tf
+variable "length" {
+    default = 12
+
+}
+variable "filename" {
+    default = "/root/random_text"
+}
+variable "content" {
+    default = "This file contains a single line of data"
+}
+variable "permission" {
+    default = 0770
+}
+
+root in ~/terraform-projects/project-mysterio via 💠 default on ☁️  (us-east-1)
+❯
+
+resource "local_file" "file" {
+    filename = var.filename
+    file_permission =  var.permission
+    content = random_string.string.id
+
+}
+
+resource "random_string" "string" {
+    length = var.length
+    keepers = {
+        length = var.length
+    }
+    lifecycle {
+        create_before_destroy =  true
+    }
+
+}
