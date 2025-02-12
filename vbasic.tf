@@ -36,7 +36,7 @@ variable "list1" {
   default = [
     10,
     20,
-    "xyz"
+    "xyz",
     false
   ]
 }
@@ -65,3 +65,9 @@ output "map1_aws_trainer" {
 #Declare a empty variable and we can get the value from CLI ..unlike ansible or shell we must and should declare a variable in order to use it
 
 variable "trainer_name" {}
+output "trainer_name" {
+  value = var.trainer_name
+}
+
+
+
